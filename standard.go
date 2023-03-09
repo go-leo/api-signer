@@ -79,6 +79,8 @@ func (client *standardSignerClient) SetAuthHeader(req *http.Request) error {
 	for k, v := range authHeader {
 		req.Header[k] = v
 	}
+
+	logSigningInfo(ctx, client.s.Logger)
 	return nil
 }
 
@@ -136,6 +138,7 @@ func (server standardSignerServer) Sign(req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// TODO 不能大于当前时间
 	if IsExpired(signTime, server.signValidTime) {
 		return "", errors.New("signature has expired")
 	}
@@ -152,7 +155,8 @@ func parseHttpBody(req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	// r.Body.Close()
+	req.Body = ioutil.NopCloser(bytes.NewReader(body))
 	return body, nil
 }
 
@@ -214,7 +218,7 @@ func (v4 standardSignerServer) signForBackend(
 	}
 	authValue := ctx.build()
 
-	v4.logSigningInfo(ctx)
+	logSigningInfo(ctx, v4.s.Logger)
 	return authValue.authorization, nil
 }
 
@@ -222,16 +226,17 @@ const logSignInfoMsg = `DEBUG: Request Signature:
 --- [Content String] --------------------------------
 %s
 ---[ STRING TO SIGN ]--------------------------------
-%s%s
+%s
+---[ Authorization ]--------------------------------
+%s
 -----------------------------------------------------`
 
-func (v4 *standardSignerServer) logSigningInfo(ctx *signingCtx) {
-	if v4.s.Logger == nil {
+func logSigningInfo(ctx *signingCtx, log Logger) {
+	if log == nil || ctx == nil {
 		return
 	}
-	signedURLMsg := ""
-	msg := fmt.Sprintf(logSignInfoMsg, ctx.contentString, ctx.stringToSign, signedURLMsg)
-	v4.s.Logger.Log(LogInfo, msg)
+	msg := fmt.Sprintf(logSignInfoMsg, ctx.contentString, ctx.stringToSign, ctx.authorization)
+	log.Log(LogInfo, msg)
 }
 
 type signingCtx struct {

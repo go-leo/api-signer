@@ -1,9 +1,9 @@
 package apisigner
 
 import (
-	"bytes"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 )
@@ -73,13 +73,22 @@ func TestServerSigner(t *testing.T) {
 }
 
 func TestAuthFlow(t *testing.T) {
-	host := "https://new-media.kureader.com"
-	path := "admin/v1/assets/vip"
+	host := "http://127.0.0.1:8080"
+	path := "/admin/v1/assets/coins"
 	method := "POST"
-	body := []byte("this is body")
+	body := strings.NewReader(`{
+		"operation": 0,
+		"increase_req": {
+			"project": "newmedia_wechat",
+			"uid": 449724877852049850,
+			"amount": 100,
+			"way": 0,
+			"vaild_time_hour": 24
+		}
+	}`)
 	// authorization := "APISIGNER-Standard-HMAC-SHA256 Credential=access key/20230306/region1/assets/apisigner_request, Signature=95e8a8f4cc4a2949a2bcb2e4041d2948f2b1655247ccce2f820d43b64805c056"
 
-	req, err := http.NewRequest(method, host+"/"+path+"?filters.1.name=id&filters.1.values.1=v1&filters.1.values.2=v2", bytes.NewBuffer(body))
+	req, err := http.NewRequest(method, host+path, body)
 	if err != nil {
 		t.Fatal(err)
 	}
