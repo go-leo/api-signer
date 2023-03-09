@@ -53,8 +53,8 @@ func TestServerSigner(t *testing.T) {
 	authorization := "APISIGNER-Standard-HMAC-SHA256 Credential=access key/20230306/region1/assets/apisigner_request, Signature=95e8a8f4cc4a2949a2bcb2e4041d2948f2b1655247ccce2f820d43b64805c056"
 
 	// Credential := NewCredential("access key", "secret key")
-	Logger := NewDefaultLogger(LogInfo)
-	serverSDK := NewSigner(Logger).Standard().Server(
+	// Logger := NewDefaultLogger(LogInfo)
+	serverSDK := NewSigner(nil).Standard().Server(
 		1*time.Minute,
 		func(ak string) (sk string) {
 			return "secret key"

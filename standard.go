@@ -226,6 +226,9 @@ const logSignInfoMsg = `DEBUG: Request Signature:
 -----------------------------------------------------`
 
 func (v4 *standardSignerServer) logSigningInfo(ctx *signingCtx) {
+	if v4.s.Logger == nil {
+		return
+	}
 	signedURLMsg := ""
 	msg := fmt.Sprintf(logSignInfoMsg, ctx.contentString, ctx.stringToSign, signedURLMsg)
 	v4.s.Logger.Log(LogInfo, msg)
