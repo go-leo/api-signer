@@ -11,10 +11,18 @@ const (
 	MethodPatch  = "PATCH"
 	MethodHead   = "HEAD"
 
-	HeaderApiSignerPrefix        = "x-apisigner"
-	HeaderApiSignerDate          = "x-apisigner-date"
-	HeaderApiSignerNonce         = "x-apisigner-nonce"
+	HeaderApiSignerPrefix        = "x-ca"
+	HeaderApiSignerDate          = "x-ca-date"
+	HeaderApiSignerNonce         = "x-ca-nonce"
 	HeaderApiSignerAuthorization = "Authorization"
 	HeaderApiSignerAlgoStandard  = "APISIGNER-Standard-HMAC-SHA256"
 	HeaderApiSignerAlgoSimple    = "APISIGNER-Simple-HMAC-SHA256"
 )
+
+const (
+	TimeFormat      = "20060102T150405Z"
+	shortTimeFormat = "20060102"
+)
+
+// emptyStringSHA256 is a SHA256 of an empty string
+const emptyStringSHA256 = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
