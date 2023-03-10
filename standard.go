@@ -297,7 +297,7 @@ func (ctx *signingCtx) build() *AuthValue {
 	ctx.buildSignature()     // depends on string to sign
 
 	parts := []string{
-		HeaderApiSignerAlgoStandard + " Credential=" + ctx.CredValues.AccessKey + "/" + ctx.credentialString,
+		HeaderApiSignerAlgo + " Credential=" + ctx.CredValues.AccessKey + "/" + ctx.credentialString,
 		"Signature=" + ctx.signature,
 	}
 	ctx.authorization = strings.Join(parts, ", ")
@@ -369,7 +369,7 @@ func (ctx *signingCtx) buildCredentialString() {
 
 func (ctx *signingCtx) buildToSign() {
 	ctx.stringToSign = strings.Join([]string{
-		HeaderApiSignerAlgoStandard,
+		HeaderApiSignerAlgo,
 		ctx.Nonce,
 		ctx.formattedTime,
 		ctx.credentialString,

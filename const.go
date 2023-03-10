@@ -11,12 +11,10 @@ const (
 	MethodPatch  = "PATCH"
 	MethodHead   = "HEAD"
 
-	HeaderApiSignerPrefix        = "x-ca"
 	HeaderApiSignerDate          = "x-ca-date"
 	HeaderApiSignerNonce         = "x-ca-nonce"
 	HeaderApiSignerAuthorization = "Authorization"
-	HeaderApiSignerAlgoStandard  = "APISIGNER-Standard-HMAC-SHA256"
-	HeaderApiSignerAlgoSimple    = "APISIGNER-Simple-HMAC-SHA256"
+	HeaderApiSignerAlgo          = "APISIGNER-HMAC-SHA256"
 )
 
 const (

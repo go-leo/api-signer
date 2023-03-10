@@ -47,27 +47,14 @@ type Signer struct {
 	Logger Logger
 }
 
-func NewSigner(logger Logger) *Signer {
-	return &Signer{
-		Logger: logger,
-	}
-}
-
-// 获取一个标准签名对象，一般用于外部第三方调用
-func (sig *Signer) Standard() SingerSDK {
+func NewSigner(logger Logger) SingerSDK {
 	return &standardSigner{
-		s:          sig,
-		headerName: HeaderApiSignerAlgoStandard,
+		s: &Signer{
+			Logger: logger,
+		},
+		headerName: HeaderApiSignerAlgo,
 	}
 }
-
-// 获取一个简单签名对象，一般用于内部调用时认证
-// func (v4 *Signer) Simple() SingerSDK {
-// 	return &simpleSigner{
-// 		s:          v4,
-// 		headerName: HeaderApiSignerAlgoSimple,
-// 	}
-// }
 
 func makeHmacSha256(key []byte, data []byte) []byte {
 	hash := hmac.New(sha256.New, key)
@@ -79,12 +66,6 @@ func makeHmacSha256(key []byte, data []byte) []byte {
 func makeSha256(data []byte) []byte {
 	hash := sha256.New()
 	hash.Write(data)
-	return hash.Sum(nil)
-}
-
-func makeSha256Content(content string) []byte {
-	hash := sha256.New()
-	hash.Write([]byte(content))
 	return hash.Sum(nil)
 }
 

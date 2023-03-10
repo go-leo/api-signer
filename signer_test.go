@@ -50,11 +50,11 @@ func TestServerSigner(t *testing.T) {
 	query["filters.1.values.2"] = []string{"v2"}
 	body := []byte("this is body")
 	signTime := time.Unix(1678089157, 0) // 20230306T075237Z
-	authorization := "APISIGNER-Standard-HMAC-SHA256 Credential=access key/20230306/region1/assets/apisigner_request, Signature=95e8a8f4cc4a2949a2bcb2e4041d2948f2b1655247ccce2f820d43b64805c056"
+	authorization := "APISIGNER-HMAC-SHA256 Credential=access key/20230306/region1/assets/apisigner_request, Signature=76c84a84e35bfde601645157fcdbc77eed506bdb46dcfd976d4a67eb355c6367"
 
 	// Credential := NewCredential("access key", "secret key")
 	// Logger := NewDefaultLogger(LogInfo)
-	serverSDK := NewSigner(nil).Standard().Server(
+	serverSDK := NewSigner(nil).Server(
 		1*time.Minute,
 		func(ak string) (sk string) {
 			return "secret key"
@@ -94,7 +94,7 @@ func TestAuthFlow(t *testing.T) {
 	}
 	Credential := NewCredential("access key", "secret key")
 	Logger := NewDefaultLogger(LogInfo)
-	standard := NewSigner(Logger).Standard()
+	standard := NewSigner(Logger)
 	clientSDK := standard.Client("cn-shanghai-1", "asset", *Credential)
 	err = clientSDK.SetAuthHeader(req)
 	if err != nil {

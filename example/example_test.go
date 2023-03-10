@@ -61,7 +61,7 @@ func TestServer(t *testing.T) {
 	req.Header.Add("Content-Type", "application/json")
 	Credential := apisigner.NewCredential("access key", "newmedia-sk")
 	Logger := apisigner.NewDefaultLogger(apisigner.LogInfo)
-	standard := apisigner.NewSigner(Logger).Standard()
+	standard := apisigner.NewSigner(Logger)
 	clientSDK := standard.Client("cn-shanghai-1", "asset", *Credential)
 	err = clientSDK.SetAuthHeader(req)
 	if err != nil {
