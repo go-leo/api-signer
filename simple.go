@@ -62,7 +62,7 @@ func (server *simpleSignerServer) Sign(req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if IsExpired(signTime, server.signValidTime) {
+	if IsInvalidTime(signTime, server.signValidTime) {
 		return "", errors.New("signature has expired")
 	}
 	authorization := header.Get(HeaderApiSignerAuthorization)

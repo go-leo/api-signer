@@ -102,7 +102,12 @@ func EscapePath(path string, encodeSep bool) string {
 	return buf.String()
 }
 
-func IsExpired(signTime time.Time, vaildTime time.Duration) bool {
+func IsInvalidTime(signTime time.Time, vaildTime time.Duration) bool {
+	now := time.Now()
+	if now.Before(signTime) {
+		return true
+	}
+
 	expiredTime := signTime.Add(vaildTime)
-	return time.Now().After(expiredTime)
+	return now.After(expiredTime)
 }
