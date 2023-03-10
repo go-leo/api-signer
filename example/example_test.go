@@ -58,6 +58,7 @@ func TestServer(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	req.Header.Add("Content-Type", "application/json")
 	Credential := apisigner.NewCredential("access key", "newmedia-sk")
 	Logger := apisigner.NewDefaultLogger(apisigner.LogInfo)
 	standard := apisigner.NewSigner(Logger).Standard()
