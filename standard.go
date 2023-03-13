@@ -105,31 +105,34 @@ type standardSignerServer struct {
 	s               *Signer
 }
 
+// vaild. vaild header x-ca-date -> Authorization -> x-ca-nonce
 func (server standardSignerServer) Vaild(req *http.Request) error {
 	if req == nil {
-		return errors.New("http request nil")
+		return errors.New("need http request not nil")
 	}
-	authorization := req.Header.Get(HeaderApiSignerAuthorization)
-	serverAuthorization, err := server.Sign(req)
-	if err != nil {
+	if req.Header == nil {
+		return errors.New("need http header not nil")
+	}
+
+	if err := server.vaildSignTime(req); err != nil {
 		return err
 	}
-	if authorization != serverAuthorization {
-		return errors.New("signature invaild")
+	if err := server.vaildAuthorization(req); err != nil {
+		return err
 	}
-	return nil
+	return server.vaildNonce(req)
 }
 
-// need host, path, method, header, query
-func (server standardSignerServer) Sign(req *http.Request) (string, error) {
+// make server authorization.
+func (server standardSignerServer) Authorization(req *http.Request) (string, error) {
+	// get sign's paramter form req
 	host, path, method := req.Host, req.URL.Path, req.Method
 	header, query := req.Header, req.URL.Query()
-	body, err := parseHttpBody(req)
+	err := server.checkParameters(host, path, method, header)
 	if err != nil {
 		return "", err
 	}
-	// 检查入参数
-	err = server.checkParameters(host, path, method, header)
+	body, err := parseHttpBody(req)
 	if err != nil {
 		return "", err
 	}
@@ -138,25 +141,9 @@ func (server standardSignerServer) Sign(req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if IsInvalidTime(signTime, server.signValidTime) {
-		return "", errors.New("signature has expired")
-	}
 	nonce := header.Get(HeaderApiSignerNonce)
-	if server.isNonceRepeated(nonce) {
-		return "", errors.New("nonce has be used")
-	}
 
-	return server.signForBackend(host, EscapePath(path, false), method, query, body, authorization, nonce, signTime)
-}
-
-func parseHttpBody(req *http.Request) ([]byte, error) {
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
-	}
-	// r.Body.Close()
-	req.Body = ioutil.NopCloser(bytes.NewReader(body))
-	return body, nil
+	return server.makeServerAuthorization(host, EscapePath(path, false), method, query, body, authorization, nonce, signTime)
 }
 
 func (server standardSignerServer) checkParameters(host string, path string, method string, header http.Header) error {
@@ -185,7 +172,48 @@ func (server standardSignerServer) checkParameters(host string, path string, met
 	return nil
 }
 
-func (v4 standardSignerServer) signForBackend(
+// check sign x-ca-date
+func (server standardSignerServer) vaildSignTime(req *http.Request) error {
+	signerDate := req.Header.Get(HeaderApiSignerDate)
+	if signerDate == "" {
+		return errors.New("head.x-ca-date can not be empty")
+	}
+	signTime, err := time.Parse(TimeFormat, req.Header.Get(HeaderApiSignerDate))
+	if err != nil {
+		return err
+	}
+	if IsInvalidTime(signTime, server.signValidTime) {
+		return errors.New("signature has expired")
+	}
+	return nil
+}
+
+// check Authorization
+func (server standardSignerServer) vaildAuthorization(req *http.Request) error {
+	serverAuthorization, err := server.Authorization(req)
+	if err != nil {
+		return err
+	}
+	authorization := req.Header.Get(HeaderApiSignerAuthorization)
+	if authorization != serverAuthorization {
+		return errors.New("head.Authorization invaild")
+	}
+	return nil
+}
+
+// check x-ca-nonce
+func (server standardSignerServer) vaildNonce(req *http.Request) error {
+	nonce := req.Header.Get(HeaderApiSignerNonce)
+	if nonce == "" {
+		return errors.New("head.x-ca-nonce can not be empty")
+	}
+	if server.isNonceRepeated(nonce) {
+		return errors.New("head.x-ca-nonce has be used")
+	}
+	return nil
+}
+
+func (v4 standardSignerServer) makeServerAuthorization(
 	host, path, method string, query url.Values, body []byte,
 	authorization, nonce string, signTime time.Time,
 ) (string, error) {
@@ -241,7 +269,7 @@ func logSigningInfo(ctx *signingCtx, log Logger) {
 type signingCtx struct {
 	ServiceName string
 	Region      string
-	Host        string
+	Host        string // 暂时无用
 	Path        string
 	Method      string
 	Body        []byte
@@ -391,4 +419,14 @@ func (ctx *signingCtx) buildBodyDigest() {
 		hash = hex.EncodeToString(makeSha256(ctx.Body))
 	}
 	ctx.bodyDigest = hash
+}
+
+func parseHttpBody(req *http.Request) ([]byte, error) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return nil, err
+	}
+	// r.Body.Close()
+	req.Body = ioutil.NopCloser(bytes.NewReader(body))
+	return body, nil
 }

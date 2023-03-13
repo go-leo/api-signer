@@ -8,38 +8,6 @@ import (
 	"time"
 )
 
-// func TestSigner(t *testing.T) {
-// 	host := "new-media.kureader.com"
-// 	path := "/admin/v1/assets/vip"
-// 	method := "POST"
-
-// 	var header = make(http.Header)
-// 	buildNonce(header) // 必须包含x-jdcloud-nonce
-// 	buildTime(header)  // 必须包含x-jdcloud-date
-// 	header.Set("content-type", "application/json")
-
-// 	// query可以为nil
-// 	var query = make(url.Values)
-// 	query["filters.1.name"] = []string{"id"}
-// 	query["filters.1.values.1"] = []string{"v1"}
-// 	query["filters.1.values.2"] = []string{"v2"}
-
-// 	// body可以为""
-// 	body := ""
-
-// 	Credential := NewCredential("access key", "secret key")
-// 	Logger := NewDefaultLogger(LogInfo)
-// 	signer := NewSigner(*Credential, Logger)
-
-// 	sign, err := signer.Sign(host, path, method, header, query, body)
-// 	trueSign := "APISIGNER-HMAC-SHA256 Credential=access key/20190214/assets/apisigner_request, Signature=ab7f411c1af4d3938f69a24539572418fa4dcdb40e3c0dd4aa329fbca091688e"
-// 	if err != nil || trueSign != sign {
-// 		println(sign)
-// 		t.Error("validate signature failed", err)
-// 	}
-// 	header.Set(HeaderApiSignerAuthorization, sign)
-// }
-
 func TestServerSigner(t *testing.T) {
 	host := "new-media.kureader.com"
 	uri := "/admin/v1/assets/vip"
@@ -65,7 +33,7 @@ func TestServerSigner(t *testing.T) {
 	)
 	s := serverSDK.(*standardSignerServer)
 
-	severAuthorization, err := s.signForBackend(host, uri, method, query, body, authorization, "aaaaa-bbb-ccc-ddd-eeeeee", signTime)
+	severAuthorization, err := s.makeServerAuthorization(host, uri, method, query, body, authorization, "aaaaa-bbb-ccc-ddd-eeeeee", signTime)
 	if err != nil || authorization != severAuthorization {
 		println(severAuthorization)
 		t.Error("validate signature failed", err)
@@ -114,6 +82,3 @@ func TestAuthFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-
-// TODO 测试 http header
-// TODO 分离 ctx， 测试ctx

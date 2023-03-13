@@ -30,6 +30,10 @@
 
 ``` payload = http.Method+ '\n' + http.Path + '\n' + rawQuery + '\n' + bodyDigest ```
 
+**2.2 生成 `credential`**
+
+```  credential = (x-ca-date的短格式，如：20060102) + '/' + regoin + '/' + ServiceName + "/" + "apisigner_request" ```
+
 **2.3 生成签名内容`strToSign`**
 
 将签名算法、nonce、date、credential、 通过 '\n' 组合, 生成`strToSign`; 
@@ -57,3 +61,9 @@
 `x-ca-nonce` = 随机值（用于防止重放攻击）
 
 `x-ca-date` = RFC 3986 格式的当前时间（如：20060102T150405Z，用于检查签名是否过期）
+
+## 验证签名流程
+
+校验认证头是否包含必要字段 -> 校验时间是否合法 -> 校验认签名是否合法 -> 校验nonce是否合法
+
+因为 nonce 大部分分布式应用都是用db或者redis之内的工具存储，防止有人生成大量的nonce攻击，这里将在内存里的低开销操作放在前面

@@ -14,22 +14,13 @@ func TestServer(t *testing.T) {
 	host := "http://127.0.0.1:8080"
 	path := "/admin/v1/assets/coins"
 	method := "POST"
-	payload := strings.NewReader(`{
-		"operation": 0,
-		"increase_req": {
-			"project": "newmedia_wechat",
-			"uid": 449724877852049850,
-			"amount": 100,
-			"way": 0,
-			"vaild_time_hour": 24
-		}
-	}`)
+	payload := strings.NewReader(`{"operation":0,"increase_req":{"project":"newmedia_wechat","uid":449724877852049850,"amount":100,"way":0,"vaild_time_hour":24}}`)
 	req, err := http.NewRequest(method, host+path, payload)
 	if err != nil {
 		panic(err)
 	}
 	req.Header.Add("Content-Type", "application/json")
-	Credential := apisigner.NewCredential("access key", "newmedia-sk")
+	Credential := apisigner.NewCredential("access key", "xxxxxxxxxx")
 	standard := apisigner.NewSigner(apisigner.NewDefaultLogger(apisigner.LogInfo))
 	clientSDK := standard.Client("cn-shanghai-1", "asset", *Credential)
 	err = clientSDK.SetAuthHeader(req)

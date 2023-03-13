@@ -30,8 +30,8 @@ type IClientSigner interface {
 }
 type ISeverSigner interface {
 	// 返回服务端生成的 Authorization 头
-	Sign(req *http.Request) (string, error)
-	// 检查Authorization 头是否符合预期，认证失败返回错误
+	Authorization(req *http.Request) (string, error)
+	// 检查认证信息是否符合预期，认证失败返回错误
 	Vaild(req *http.Request) error
 }
 
