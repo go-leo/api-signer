@@ -1,26 +1,25 @@
-package example
+package main
 
 import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"testing"
 
 	apisigner "github.com/go-leo/api-signer"
 )
 
-func TestServer(t *testing.T) {
+func main() {
 	host := "http://127.0.0.1:8080"
 	path := "/admin/v1/assets/coins"
 	method := "POST"
-	payload := strings.NewReader(`{"operation":0,"increase_req":{"project":"newmedia_wechat","uid":449724877852049850,"amount":100,"way":0,"vaild_time_hour":24}}`)
+	payload := strings.NewReader(`{"operation":1,"decrease_req":{"uid":451553757840147029,"coin_amount":0,"gift_amount":10}}`)
 	req, err := http.NewRequest(method, host+path, payload)
 	if err != nil {
 		panic(err)
 	}
 	req.Header.Add("Content-Type", "application/json")
-	Credential := apisigner.NewCredential("access key", "xxxxxxxxxx")
+	Credential := apisigner.NewCredential("access key", "xxxxxxxx")
 	standard := apisigner.NewSigner(apisigner.NewDefaultLogger(apisigner.LogInfo))
 	clientSDK := standard.Client("cn-shanghai-1", "asset", *Credential)
 	err = clientSDK.SetAuthHeader(req)

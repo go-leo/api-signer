@@ -3,6 +3,44 @@
 
 ## 使用
 
+#### 客户端
+```go
+    import apisigner "github.com/go-leo/api-signer"
+
+    // 构建一个http请求 
+    req, err := http.NewRequest(method, host+path, payload)
+	if err != nil {
+		panic(err)
+	}
+    // 在构建完请求后调用如下方法即可
+    err = apisigner.NewSigner(apisigner.NewDefaultLogger(apisigner.LogInfo)).
+        Client("cn-shanghai-1", "asset", *Credential).
+        SetAuthHeader(req)
+	if err != nil {
+		...
+	}
+```
+
+#### 服务端
+```go
+    import apisigner "github.com/go-leo/api-signer"
+    
+    // 在认证中间件中调用如下方法
+    serverSigner := apisigner.NewSigner(slog).Server(
+        apiSignerExpireDuration,
+        func(ak string) (sk string) {
+            return "apiSignerAK"
+        },
+        func(nonce string) bool {
+            return true
+        },
+    ),
+    err := serverSigner.Vaild(req)
+    if err != nil {
+        return nil, errors.WrapC(err, code.ErrInvalidAuthHeader)
+    }
+```
+
 ## 签名流程
 
 ### 一、获取 ak、sk
